@@ -4,7 +4,7 @@ use strict;
 use warnings;
 no warnings 'uninitialized';
 use parent 'Catalyst::Action';
-use Spreadsheet::WriteExcel ();
+use Spreadsheet::WriteExcel;
 use Scalar::Util 'reftype';
 use namespace::clean;
 
@@ -14,11 +14,11 @@ Catalyst::Action::Serialize::SimpleExcel - Serialize tables to Excel files
 
 =head1 VERSION
 
-Version 0.01_01
+Version 0.011
 
 =cut
 
-our $VERSION = '0.01_01';
+our $VERSION = '0.011';
 
 =head1 SYNOPSIS
 
@@ -30,6 +30,7 @@ In your REST Controller:
     package MyApp::Controller::REST;
 
     use parent 'Catalyst::Controller::REST';
+    use DBIx::Class::ResultClass::HashRefInflator ();
     use POSIX 'strftime';
 
     __PACKAGE__->config->{map}{'application/vnd.ms-excel'} = 'SimpleExcel';
@@ -43,9 +44,10 @@ In your REST Controller:
             order_by => 'author,title'
         });
 
+        $rs->result_class('DBIx::Class::ResultClass::HashRefInflator');
+
         my @t = map {
-            my $row = $_;
-            [ map $row->$_, qw/author title/ ]
+            [ @{$_}{qw/author title/} ]
         } $rs->all;
 
         my $entity = {
@@ -72,12 +74,31 @@ In your javascript, to initiate a file download:
     }
 
 Note, the content-type query param is required if you're just linking to the
-action. It tells C::C::REST what you're serializing the data as.
+action. It tells L<Catalyst::Controller::REST> what you're serializing the data
+as.
 
 =head1 DESCRIPTION
 
 Your entity should be either an array of arrays, or the more embellished format
-described in the L</SYNOPSIS>.
+described below and in the L</SYNOPSIS>.
+
+If entity is a hashref, keys should be:
+
+=head2 rows
+
+Required. The array of arrays of rows.
+
+=head2 header
+
+Optional, an array for the first line of the sheet, which will be in bold.
+
+=head2 column_widths
+
+Optional, the widths in characters of the columns.
+
+=head2 filename
+
+The name of the file before .xls. Defaults to "data".
 
 =cut
 
@@ -136,7 +157,7 @@ sub execute {
     my $filename = $data->{filename} || 'data';
 
     $workbook->close;
-    $c->res->content_type('application/octet-stream');
+    $c->res->content_type('application/vnd.ms-excel');
     $c->res->header('Content-Disposition' =>
      "attachment; filename=${filename}.xls");
     $c->res->output($buf);
@@ -153,6 +174,12 @@ Rafael Kitover, C<< <rkitover at cpan.org> >>
 Please report any bugs or feature requests to C<bug-catalyst-action-serialize-simpleexcel at rt.cpan.org>, or through
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Catalyst-Action-Serialize-SimpleExcel>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
+
+=head1 SEE ALSO
+
+L<Catalyst>, L<Catalyst::Controller::REST>, L<Catalyst::Action::REST>,
+L<Catalyst::View::Excel::Template::Plus>, L<Spreadsheet::WriteExcel>,
+L<Spreadsheet::ParseExcel>
 
 =head1 TODO
 

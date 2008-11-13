@@ -25,7 +25,7 @@ cmp_deeply(
 ok((my $resp = request '/rest/fancy?content-type=application%2Fvnd.ms-excel'),
     'received response');
 
-is($resp->header('Content-Type'), 'application/octet-stream', 'Content-Type');
+is($resp->header('Content-Type'), 'application/vnd.ms-excel', 'Content-Type');
 
 is($resp->header('Content-Disposition'), 'attachment; filename=mtfnpy.xls', 'Content-Disposition');
 
