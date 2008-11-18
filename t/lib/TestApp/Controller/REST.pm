@@ -39,4 +39,22 @@ sub fancy_GET {
     );
 }
 
+sub auto_widths : Local ActionClass('REST') {}
+
+sub auto_widths_GET {
+    my ($self, $c) = @_;
+
+    $self->status_ok(
+        $c,
+        entity => {
+            header => [qw/Foo Bar/],
+            rows => [
+                [1,2],
+                [3,999999]
+            ],
+            filename => 'mtfnpy'
+        }
+    );
+}
+
 1;

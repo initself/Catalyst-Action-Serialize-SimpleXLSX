@@ -1,5 +1,8 @@
 Revision history for Catalyst-Action-Serialize-SimpleExcel
 
+0.012  2008-11-17 15:24:22 PDT
+    Added automatic column widths support.
+
 0.011  2008-11-12 13:17:16 PDT
     First CPAN release, fixed Content-Type and used HashRefInflator in example
     as jshirley suggested.

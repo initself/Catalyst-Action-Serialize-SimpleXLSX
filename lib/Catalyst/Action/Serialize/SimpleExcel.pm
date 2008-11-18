@@ -14,11 +14,11 @@ Catalyst::Action::Serialize::SimpleExcel - Serialize tables to Excel files
 
 =head1 VERSION
 
-Version 0.011
+Version 0.012
 
 =cut
 
-our $VERSION = '0.011';
+our $VERSION = '0.012';
 
 =head1 SYNOPSIS
 
@@ -52,7 +52,6 @@ In your REST Controller:
 
         my $entity = {
             header => ['Author', 'Title'], # will be bold
-            column_widths => [30, 50], # in characters
             rows => \@t,
     # the part before .xls, which is automatically appended
             filename => 'myapp-books-'.strftime('%m-%d-%Y', localtime)
@@ -94,7 +93,8 @@ Optional, an array for the first line of the sheet, which will be in bold.
 
 =head2 column_widths
 
-Optional, the widths in characters of the columns.
+Optional, the widths in characters of the columns. Otherwise the widths are
+calculated automatically from the data and header.
 
 =head2 filename
 
@@ -122,22 +122,16 @@ sub execute {
 
     my ($row, $col) = (0,0);
 
-# Set column widths
-    if (exists $data->{column_widths}) {
-        for my $width (@{ $data->{column_widths} }) {
-            $worksheet->set_column($col, $col++, $width);
-        }
-# Have to set the width of column 0 again, otherwise Excel loses it!
-# I don't know why...
-        $worksheet->set_column(0, 0, $data->{column_widths}[0]);
-        $col = 0;
-    }
+    my @auto_widths;
 
 # Write Header
     if (exists $data->{header}) {
         my $header_format = $workbook->add_format;
         $header_format->set_bold;
         for my $header (@{ $data->{header} }) {
+            $auto_widths[$col] = length $header
+                if $auto_widths[$col] < length $header;
+
             $worksheet->write($row, $col++, $header, $header_format);
         }
         $row++;
@@ -147,11 +141,26 @@ sub execute {
 # Write data
     for my $the_row (@{ $data->{rows} }) {
         for my $the_col (@$the_row) {
+            $auto_widths[$col] = length $the_col
+                if $auto_widths[$col] < length $the_col;
+
             $worksheet->write($row, $col++, $the_col);
         }
         $row++;
         $col = 0;
     }
+
+# Set column widths
+    $data->{column_widths} = \@auto_widths
+        unless exists $data->{column_widths};
+
+    for my $width (@{ $data->{column_widths} }) {
+        $worksheet->set_column($col, $col++, $width);
+    }
+# Have to set the width of column 0 again, otherwise Excel loses it!
+# I don't know why...
+    $worksheet->set_column(0, 0, $data->{column_widths}[0]);
+    $col = 0;
 
 # Write the file
     my $filename = $data->{filename} || 'data';
@@ -188,8 +197,6 @@ L<Spreadsheet::ParseExcel>
 =item * Split into mutliple overridable methods.
 
 =item * Multiple sheet support.
-
-=item * Autofit support (would require a macro.)
 
 =back
 
