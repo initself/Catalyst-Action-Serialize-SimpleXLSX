@@ -20,6 +20,21 @@ sub a_o_a_GET {
     );
 }
 
+sub no_numify : Local ActionClass('REST') {}
+
+# test that strings that parse as numbers pass through unmolested
+sub no_numify_GET {
+    my ($self, $c) = @_;
+
+    $self->status_ok(
+        $c,
+        entity => [
+            ['01',' 2',3],
+            [4,5,'006']
+        ]
+    );
+}
+
 sub fancy : Local ActionClass('REST') {}
 
 sub fancy_GET {

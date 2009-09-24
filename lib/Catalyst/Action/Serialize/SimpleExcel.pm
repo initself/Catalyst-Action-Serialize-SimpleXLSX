@@ -14,11 +14,11 @@ Catalyst::Action::Serialize::SimpleExcel - Serialize tables to Excel files
 
 =head1 VERSION
 
-Version 0.012
+Version 0.013
 
 =cut
 
-our $VERSION = '0.012';
+our $VERSION = '0.013';
 
 =head1 SYNOPSIS
 
@@ -78,7 +78,7 @@ as.
 
 =head1 DESCRIPTION
 
-Your entity should be either an array of arrays, or the more embellished format
+Your entity should be either an array of arrays or a hash with the keys as
 described below and in the L</SYNOPSIS>.
 
 If entity is a hashref, keys should be:
@@ -119,6 +119,8 @@ sub execute {
     open my $fh, '>', \my $buf;
     my $workbook = Spreadsheet::WriteExcel->new($fh);
     my $worksheet = $workbook->add_worksheet;
+
+    $worksheet->keep_leading_zeros(1);
 
     my ($row, $col) = (0,0);
 

@@ -7,7 +7,7 @@ use lib "$Bin/lib";
 use Catalyst::Test 'TestApp';
 use Spreadsheet::ParseExcel ();
 
-use Test::More tests => 14;
+use Test::More tests => 17;
 use Test::Deep;
 
 # Test array of array
@@ -22,6 +22,19 @@ cmp_deeply(
     read_sheet($sheet),
     [[1,2,3],[4,5,6]],
     'array_of_array -> sheet'
+);
+
+# test that number-like data does not get numified
+ok(($file  = get '/rest/no_numify?content-type=application%2Fvnd.ms-excel'),
+    'received file');
+ok(($excel = Spreadsheet::ParseExcel::Workbook->Parse(\$file)),
+    'parsed file');
+$sheet = $excel->{Worksheet}[0];
+
+cmp_deeply(
+    read_sheet($sheet),
+    [['01',' 2',3],[4,5,'006']],
+    'data is not numified'
 );
 
 # Test automatic column widths

@@ -1,4 +1,4 @@
-use inc::Module::Install;
+use inc::Module::Install 0.91;
 
 name     'Catalyst-Action-Serialize-SimpleExcel';
 all_from 'lib/Catalyst/Action/Serialize/SimpleExcel.pm';
@@ -17,4 +17,6 @@ test_requires 'Test::Deep';
                                                                       
 auto_install;                                                         
                                                                       
+resources repository => 'http://dev.catalyst.perl.org/repos/Catalyst/Catalyst-Action-Serialize-SimpleExcel/1.000/trunk/';
+
 WriteAll;                                                             
