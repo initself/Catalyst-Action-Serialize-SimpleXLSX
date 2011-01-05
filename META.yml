@@ -21,6 +21,10 @@ no_index:
   directory:
     - inc
     - t
+provides:
+  Catalyst::Action::Serialize::SimpleExcel:
+    file: lib/Catalyst/Action/Serialize/SimpleExcel.pm
+    version: 0.015
 requires:
   Catalyst::Controller::REST: 0
   Spreadsheet::WriteExcel: 0
@@ -29,4 +33,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://dev.catalyst.perl.org/repos/Catalyst/Catalyst-Action-Serialize-SimpleExcel/1.000/trunk/
-version: 0.014
+version: 0.015
