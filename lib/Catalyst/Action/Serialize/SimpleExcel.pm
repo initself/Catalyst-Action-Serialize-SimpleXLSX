@@ -4,21 +4,17 @@ use strict;
 use warnings;
 no warnings 'uninitialized';
 use parent 'Catalyst::Action';
-use Spreadsheet::WriteExcel;
-use Scalar::Util 'reftype';
+use Spreadsheet::WriteExcel ();
+use Catalyst::Exception ();
 use namespace::clean;
 
 =head1 NAME
 
-Catalyst::Action::Serialize::SimpleExcel - Serialize tables to Excel files
-
-=head1 VERSION
-
-Version 0.013
+Catalyst::Action::Serialize::SimpleExcel - Serialize to Excel files
 
 =cut
 
-our $VERSION = '0.013';
+our $VERSION = '0.014';
 
 =head1 SYNOPSIS
 
@@ -40,20 +36,40 @@ In your REST Controller:
     sub books_GET {
         my ($self, $c) = @_;
 
-        my $rs = $c->model('MyDB::Book')->search({}, {
+        my $books_rs = $c->model('MyDB::Book')->search({}, {
             order_by => 'author,title'
         });
 
-        $rs->result_class('DBIx::Class::ResultClass::HashRefInflator');
+        $books_rs->result_class('DBIx::Class::ResultClass::HashRefInflator');
 
-        my @t = map {
+        my @books = map {
             [ @{$_}{qw/author title/} ]
-        } $rs->all;
+        } $books_rs->all;
+
+        my $authors_rs = $c->model('MyDB::Author')->search({}, {
+            order_by => 'last_name,middle_name,last_name'
+        });
+
+        $authors_rs->result_class('DBIx::Class::ResultClass::HashRefInflator');
+
+        my @authors = map {
+            [ @{$_}{qw/first_name middle_name last_name/} ]
+        } $authors_rs->all;
 
         my $entity = {
-            header => ['Author', 'Title'], # will be bold
-            rows => \@t,
-    # the part before .xls, which is automatically appended
+            sheets => [
+                {
+                    name => 'Books',
+                    header => ['Author', 'Title'], # will be bold
+                    rows => \@books,
+                },
+                {
+                    name => 'Authors',
+                    header => ['First Name', 'Middle Name', 'Last Name'],
+                    rows => \@authors,
+                },
+            ],
+            # the part before .xls, which is automatically appended
             filename => 'myapp-books-'.strftime('%m-%d-%Y', localtime)
         };
 
@@ -78,10 +94,25 @@ as.
 
 =head1 DESCRIPTION
 
-Your entity should be either an array of arrays or a hash with the keys as
-described below and in the L</SYNOPSIS>.
+Your entity should be either an array of arrays, an array of arrays of arrays,
+or a hash with the keys as described below and in the L</SYNOPSIS>.
 
 If entity is a hashref, keys should be:
+
+=head2 sheets
+
+An array of worksheets. Either sheets or a worksheet specification at the top
+level is required.
+
+=head2 filename
+
+Optional. The name of the file before .xls. Defaults to "data".
+
+Each sheet should be an array of arrays, or a hashref with the following fields:
+
+=head2 name
+
+Optional. The name of the worksheet.
 
 =head2 rows
 
@@ -96,9 +127,7 @@ Optional, an array for the first line of the sheet, which will be in bold.
 Optional, the widths in characters of the columns. Otherwise the widths are
 calculated automatically from the data and header.
 
-=head2 filename
-
-The name of the file before .xls. Defaults to "data".
+If you only have one sheet, you can put it in the top level hash.
 
 =cut
 
@@ -114,11 +143,88 @@ sub execute {
 
     my $data = $c->stash->{$stash_key};
 
-    $data = { rows => $data } if reftype $data eq 'ARRAY';
-
     open my $fh, '>', \my $buf;
     my $workbook = Spreadsheet::WriteExcel->new($fh);
-    my $worksheet = $workbook->add_worksheet;
+
+    my ($filename, $sheets) = $self->_parse_entity($data);
+
+    for my $sheet (@$sheets) {
+        $self->_add_sheet($workbook, $sheet);
+    }
+
+    $workbook->close;
+
+    $self->_write_file($c, $filename, $buf);
+
+    return 1;
+}
+
+sub _write_file {
+    my ($self, $c, $filename, $data) = @_;
+
+    $c->res->content_type('application/vnd.ms-excel');
+    $c->res->header('Content-Disposition' =>
+     "attachment; filename=${filename}.xls");
+    $c->res->output($data);
+}
+
+sub _parse_entity {
+    my ($self, $data) = @_;
+
+    my @sheets;
+    my $filename = 'data'; # default
+
+    if (ref $data eq 'ARRAY') {
+        if (not ref $data->[0][0]) {
+            $sheets[0] = { rows => $data };
+        }
+        else {
+            @sheets = map 
+                ref $_ eq 'HASH' ? $_ 
+              : ref $_ eq 'ARRAY' ? { rows => $_ }
+              : Catalyst::Exception->throw(
+                  'Unsupported sheet reference type: '.ref($_)), @{ $data };
+        }
+    }
+    elsif (ref $data eq 'HASH') {
+        $filename = $data->{filename} if $data->{filename};
+
+        my $sheets = $data->{sheets};
+        my $rows   = $data->{rows};
+
+        if ($sheets && $rows) {
+            Catalyst::Exception->throw('Use either sheets or rows, not both.');
+        }
+
+        if ($sheets) {
+            @sheets = map 
+                ref $_ eq 'HASH' ? $_ 
+              : ref $_ eq 'ARRAY' ? { rows => $_ }
+              : Catalyst::Exception->throw(
+                  'Unsupported sheet reference type: '.ref($_)), @{ $sheets };
+        }
+        elsif ($rows) {
+            $sheets[0] = $data;
+        }
+        else {
+            Catalyst::Exception->throw('Must supply either sheets or rows.');
+        }
+    }
+    else {
+        Catalyst::Exception->throw(
+            'Unsupported workbook reference type: '.ref($data)
+        );
+    }
+
+    return ($filename, \@sheets);
+}
+
+sub _add_sheet {
+    my ($self, $workbook, $sheet) = @_;
+
+    my $worksheet = $workbook->add_worksheet(
+        $sheet->{name} ? $sheet->{name} : ()
+    );
 
     $worksheet->keep_leading_zeros(1);
 
@@ -127,10 +233,10 @@ sub execute {
     my @auto_widths;
 
 # Write Header
-    if (exists $data->{header}) {
+    if (exists $sheet->{header}) {
         my $header_format = $workbook->add_format;
         $header_format->set_bold;
-        for my $header (@{ $data->{header} }) {
+        for my $header (@{ $sheet->{header} }) {
             $auto_widths[$col] = length $header
                 if $auto_widths[$col] < length $header;
 
@@ -141,7 +247,7 @@ sub execute {
     }
 
 # Write data
-    for my $the_row (@{ $data->{rows} }) {
+    for my $the_row (@{ $sheet->{rows} }) {
         for my $the_col (@$the_row) {
             $auto_widths[$col] = length $the_col
                 if $auto_widths[$col] < length $the_col;
@@ -153,27 +259,17 @@ sub execute {
     }
 
 # Set column widths
-    $data->{column_widths} = \@auto_widths
-        unless exists $data->{column_widths};
+    $sheet->{column_widths} = \@auto_widths
+        unless exists $sheet->{column_widths};
 
-    for my $width (@{ $data->{column_widths} }) {
+    for my $width (@{ $sheet->{column_widths} }) {
         $worksheet->set_column($col, $col++, $width);
     }
 # Have to set the width of column 0 again, otherwise Excel loses it!
 # I don't know why...
-    $worksheet->set_column(0, 0, $data->{column_widths}[0]);
-    $col = 0;
+    $worksheet->set_column(0, 0, $sheet->{column_widths}[0]);
 
-# Write the file
-    my $filename = $data->{filename} || 'data';
-
-    $workbook->close;
-    $c->res->content_type('application/vnd.ms-excel');
-    $c->res->header('Content-Disposition' =>
-     "attachment; filename=${filename}.xls");
-    $c->res->output($buf);
-
-    1;
+    return $worksheet;
 }
 
 =head1 AUTHOR
@@ -191,16 +287,6 @@ automatically be notified of progress on your bug as I make changes.
 L<Catalyst>, L<Catalyst::Controller::REST>, L<Catalyst::Action::REST>,
 L<Catalyst::View::Excel::Template::Plus>, L<Spreadsheet::WriteExcel>,
 L<Spreadsheet::ParseExcel>
-
-=head1 TODO
-
-=over 4
-
-=item * Split into mutliple overridable methods.
-
-=item * Multiple sheet support.
-
-=back
 
 =head1 SUPPORT
 
@@ -232,7 +318,7 @@ L<http://search.cpan.org/dist/Catalyst-Action-Serialize-SimpleExcel/>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright (c) 2008 Rafael Kitover
+Copyright (c) 2008-2011 Rafael Kitover
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

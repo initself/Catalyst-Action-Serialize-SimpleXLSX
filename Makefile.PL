@@ -9,7 +9,6 @@ requires 'Catalyst::Controller::REST';
 requires 'Spreadsheet::WriteExcel';                                   
 requires 'parent';                                                    
 requires 'namespace::clean';                                          
-requires 'Scalar::Util';                                              
                                                                       
 test_requires 'Test::More';                                           
 test_requires 'Spreadsheet::ParseExcel';                              

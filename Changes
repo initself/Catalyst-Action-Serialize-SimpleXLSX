@@ -1,5 +1,8 @@
 Revision history for Catalyst-Action-Serialize-SimpleExcel
 
+0.014  2011-01-05 09:37:55
+    - Multiple worksheet support.
+
 0.013  2009-09-24 10:22:22
     Added $worksheet->keep_leading_zeros(1)
 
