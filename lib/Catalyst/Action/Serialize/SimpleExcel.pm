@@ -5,7 +5,7 @@ use warnings;
 no warnings 'uninitialized';
 use parent 'Catalyst::Action';
 use Spreadsheet::WriteExcel ();
-use Catalyst::Exception ();
+use Catalyst::Exception     ();
 use namespace::clean;
 
 =head1 NAME
@@ -132,144 +132,144 @@ If you only have one sheet, you can put it in the top level hash.
 =cut
 
 sub execute {
-    my $self = shift;
-    my ($controller, $c) = @_;
+  my $self = shift;
+  my ( $controller, $c ) = @_;
 
-    my $stash_key = (
-            $controller->config->{'serialize'} ?
-                $controller->config->{'serialize'}->{'stash_key'} :
-                $controller->config->{'stash_key'}
-        ) || 'rest';
+  my $stash_key = (
+      $controller->config->{'serialize'}
+    ? $controller->config->{'serialize'}->{'stash_key'}
+    : $controller->config->{'stash_key'}
+    )
+    || 'rest';
 
-    my $data = $c->stash->{$stash_key};
+  my $data = $c->stash->{$stash_key};
 
-    open my $fh, '>', \my $buf;
-    my $workbook = Spreadsheet::WriteExcel->new($fh);
+  open my $fh, '>', \my $buf;
+  my $workbook = Spreadsheet::WriteExcel->new($fh);
 
-    my ($filename, $sheets) = $self->_parse_entity($data);
+  my ( $filename, $sheets ) = $self->_parse_entity($data);
 
-    for my $sheet (@$sheets) {
-        $self->_add_sheet($workbook, $sheet);
-    }
+  for my $sheet (@$sheets) {
+    $self->_add_sheet( $workbook, $sheet );
+  }
 
-    $workbook->close;
+  $workbook->close;
 
-    $self->_write_file($c, $filename, $buf);
+  $self->_write_file( $c, $filename, $buf );
 
-    return 1;
+  return 1;
 }
 
 sub _write_file {
-    my ($self, $c, $filename, $data) = @_;
+  my ( $self, $c, $filename, $data ) = @_;
 
-    $c->res->content_type('application/vnd.ms-excel');
-    $c->res->header('Content-Disposition' =>
-     "attachment; filename=${filename}.xls");
-    $c->res->output($data);
+  $c->res->content_type('application/vnd.ms-excel');
+  $c->res->header(
+    'Content-Disposition' => "attachment; filename=${filename}.xls" );
+  $c->res->output($data);
 }
 
 sub _parse_entity {
-    my ($self, $data) = @_;
+  my ( $self, $data ) = @_;
 
-    my @sheets;
-    my $filename = 'data'; # default
+  my @sheets;
+  my $filename = 'data';    # default
 
-    if (ref $data eq 'ARRAY') {
-        if (not ref $data->[0][0]) {
-            $sheets[0] = { rows => $data };
-        }
-        else {
-            @sheets = map 
-                ref $_ eq 'HASH' ? $_ 
-              : ref $_ eq 'ARRAY' ? { rows => $_ }
-              : Catalyst::Exception->throw(
-                  'Unsupported sheet reference type: '.ref($_)), @{ $data };
-        }
-    }
-    elsif (ref $data eq 'HASH') {
-        $filename = $data->{filename} if $data->{filename};
-
-        my $sheets = $data->{sheets};
-        my $rows   = $data->{rows};
-
-        if ($sheets && $rows) {
-            Catalyst::Exception->throw('Use either sheets or rows, not both.');
-        }
-
-        if ($sheets) {
-            @sheets = map 
-                ref $_ eq 'HASH' ? $_ 
-              : ref $_ eq 'ARRAY' ? { rows => $_ }
-              : Catalyst::Exception->throw(
-                  'Unsupported sheet reference type: '.ref($_)), @{ $sheets };
-        }
-        elsif ($rows) {
-            $sheets[0] = $data;
-        }
-        else {
-            Catalyst::Exception->throw('Must supply either sheets or rows.');
-        }
+  if ( ref $data eq 'ARRAY' ) {
+    if ( not ref $data->[0][0] ) {
+      $sheets[0] = { rows => $data };
     }
     else {
-        Catalyst::Exception->throw(
-            'Unsupported workbook reference type: '.ref($data)
-        );
+      @sheets =
+          map ref $_ eq 'HASH' ? $_
+        : ref $_ eq 'ARRAY' ? { rows => $_ }
+        : Catalyst::Exception->throw(
+        'Unsupported sheet reference type: ' . ref($_) ), @{$data};
+    }
+  }
+  elsif ( ref $data eq 'HASH' ) {
+    $filename = $data->{filename} if $data->{filename};
+
+    my $sheets = $data->{sheets};
+    my $rows   = $data->{rows};
+
+    if ( $sheets && $rows ) {
+      Catalyst::Exception->throw('Use either sheets or rows, not both.');
     }
 
-    return ($filename, \@sheets);
+    if ($sheets) {
+      @sheets =
+          map ref $_ eq 'HASH' ? $_
+        : ref $_ eq 'ARRAY' ? { rows => $_ }
+        : Catalyst::Exception->throw(
+        'Unsupported sheet reference type: ' . ref($_) ), @{$sheets};
+    }
+    elsif ($rows) {
+      $sheets[0] = $data;
+    }
+    else {
+      Catalyst::Exception->throw('Must supply either sheets or rows.');
+    }
+  }
+  else {
+    Catalyst::Exception->throw(
+      'Unsupported workbook reference type: ' . ref($data) );
+  }
+
+  return ( $filename, \@sheets );
 }
 
 sub _add_sheet {
-    my ($self, $workbook, $sheet) = @_;
+  my ( $self, $workbook, $sheet ) = @_;
 
-    my $worksheet = $workbook->add_worksheet(
-        $sheet->{name} ? $sheet->{name} : ()
-    );
+  my $worksheet =
+    $workbook->add_worksheet( $sheet->{name} ? $sheet->{name} : () );
 
-    $worksheet->keep_leading_zeros(1);
+  $worksheet->keep_leading_zeros(1);
 
-    my ($row, $col) = (0,0);
+  my ( $row, $col ) = ( 0, 0 );
 
-    my @auto_widths;
+  my @auto_widths;
 
-# Write Header
-    if (exists $sheet->{header}) {
-        my $header_format = $workbook->add_format;
-        $header_format->set_bold;
-        for my $header (@{ $sheet->{header} }) {
-            $auto_widths[$col] = length $header
-                if $auto_widths[$col] < length $header;
+  # Write Header
+  if ( exists $sheet->{header} ) {
+    my $header_format = $workbook->add_format;
+    $header_format->set_bold;
+    for my $header ( @{ $sheet->{header} } ) {
+      $auto_widths[$col] = length $header
+        if $auto_widths[$col] < length $header;
 
-            $worksheet->write($row, $col++, $header, $header_format);
-        }
-        $row++;
-        $col = 0;
+      $worksheet->write( $row, $col++, $header, $header_format );
     }
+    $row++;
+    $col = 0;
+  }
 
-# Write data
-    for my $the_row (@{ $sheet->{rows} }) {
-        for my $the_col (@$the_row) {
-            $auto_widths[$col] = length $the_col
-                if $auto_widths[$col] < length $the_col;
+  # Write data
+  for my $the_row ( @{ $sheet->{rows} } ) {
+    for my $the_col (@$the_row) {
+      $auto_widths[$col] = length $the_col
+        if $auto_widths[$col] < length $the_col;
 
-            $worksheet->write($row, $col++, $the_col);
-        }
-        $row++;
-        $col = 0;
+      $worksheet->write( $row, $col++, $the_col );
     }
+    $row++;
+    $col = 0;
+  }
 
-# Set column widths
-    $sheet->{column_widths} = \@auto_widths
-        unless exists $sheet->{column_widths};
+  # Set column widths
+  $sheet->{column_widths} = \@auto_widths
+    unless exists $sheet->{column_widths};
 
-    for my $width (@{ $sheet->{column_widths} }) {
-        $worksheet->set_column($col, $col++, $width);
-    }
-# Have to set the width of column 0 again, otherwise Excel loses it!
-# I don't know why...
-    $worksheet->set_column(0, 0, $sheet->{column_widths}[0]);
+  for my $width ( @{ $sheet->{column_widths} } ) {
+    $worksheet->set_column( $col, $col++, $width );
+  }
 
-    return $worksheet;
+  # Have to set the width of column 0 again, otherwise Excel loses it!
+  # I don't know why...
+  $worksheet->set_column( 0, 0, $sheet->{column_widths}[0] );
+
+  return $worksheet;
 }
 
 =head1 AUTHOR
@@ -325,4 +325,4 @@ under the same terms as Perl itself.
 
 =cut
 
-1; # End of Catalyst::Action::Serialize::SimpleExcel
+1;    # End of Catalyst::Action::Serialize::SimpleExcel
