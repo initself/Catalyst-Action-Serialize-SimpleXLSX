@@ -88,11 +88,15 @@ as.
 Your entity should be either:
 
 =over
-
 =item * an array of arrays
-=item * an array of arrays of arrays
-=item * a hash with the keys as described below and in the L</SYNOPSIS>
+=back
 
+=over
+=item * an array of arrays of arrays
+=back
+
+=over
+=item * a hash with the keys as described below and in the L</SYNOPSIS>
 =back
 
 If entity is a hashref, keys should be:
