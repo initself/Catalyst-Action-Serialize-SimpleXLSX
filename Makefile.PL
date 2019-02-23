@@ -4,8 +4,8 @@ use strict;
 use ExtUtils::MakeMaker 6.64;
 
 my $preop =
-  'perldoc -uT $(VERSION_FROM) | tee $(DISTVNAME)/README.pod > README.md;' . 
-  'pod2text README.md | tee $(DISTVNAME)/README > README';
+  'perldoc -uT $(VERSION_FROM) | tee README.pod;' . 
+  'pod2text README.pod | tee README';
 
 WriteMakefile(
   NAME          => 'Catalyst::Action::Serialize::SimpleXLSX',

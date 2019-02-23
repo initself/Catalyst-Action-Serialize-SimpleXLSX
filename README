@@ -1,6 +1,6 @@
 NAME
-    Catalyst::Action::Serialize::SimpleExcel2007 - Serialize to Microsoft
-    Excel 2007 .xlsx files
+    Catalyst::Action::Serialize::SimpleXLSX - Serialize to Microsoft Excel
+    2007 .xlsx files
 
 SYNOPSIS
     Serializes tabular data to an Excel file, with simple configuration
@@ -14,7 +14,7 @@ SYNOPSIS
       use DBIx::Class::ResultClass::HashRefInflator ();
       use POSIX 'strftime';
 
-      __PACKAGE__->config->{map}{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'} = 'SimpleExcel2007';
+      __PACKAGE__->config->{map}{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'} = 'SimpleXLSX';
 
       sub books : Local ActionClass('REST') {}
 
@@ -106,7 +106,10 @@ DESCRIPTION
     If you only have one sheet, you can put it in the top level hash.
 
 AUTHOR
-    Mike Baas <mbaas@cpan.org>
+    Mike Baas <mbaas at cpan.org>
+
+ORIGINAL AUTHOR
+    Rafael Kitover <rkitover at cpan.org>
 
 ACKNOWLEDGEMENTS
     This module is really nothing more than a tweak to

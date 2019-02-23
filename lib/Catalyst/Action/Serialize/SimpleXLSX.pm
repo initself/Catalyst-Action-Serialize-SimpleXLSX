@@ -11,7 +11,7 @@ Catalyst::Action::Serialize::SimpleXLSX - Serialize to Microsoft Excel 2007 .xls
 
 =cut
 
-our $VERSION = '0.001';
+our $VERSION = "0.002";
 
 =head1 SYNOPSIS
 
@@ -268,7 +268,11 @@ sub _add_sheet {
 
 =head1 AUTHOR
 
-Mike Baas <mbaas@cpan.org>
+Mike Baas <mbaas at cpan.org>
+
+=head1 ORIGINAL AUTHOR 
+
+Rafael Kitover <rkitover at cpan.org>
 
 =head1 ACKNOWLEDGEMENTS  
 
