@@ -11,7 +11,7 @@ Catalyst::Action::Serialize::SimpleXLSX - Serialize to Microsoft Excel 2007 .xls
 
 =cut
 
-our $VERSION = "0.002";
+our $VERSION = "0.003";
 
 =head1 SYNOPSIS
 
@@ -287,6 +287,10 @@ L<Catalyst>, L<Catalyst::Controller::REST>, L<Catalyst::Action::REST>, L<Catalys
 =head1 REPOSITORY
 
 L<https://github.com/initself/Catalyst-Action-Serialize-SimpleXLSX>
+
+=head1 CONTRIBUTING 
+
+Fork on Github!
 
 =head1 COPYRIGHT & LICENSE
 

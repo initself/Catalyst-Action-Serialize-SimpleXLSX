@@ -1,5 +1,8 @@
 Revision history for Catalyst-Action-Serialize-SimpleXLSX
 
+0.003  2019-02-22 13:17:20 PDT
+  - Added CONTRIBUTING.
+
 0.002  2019-02-22 13:17:16 PDT
   - First CPAN release.  Forked from Catalyst-Action-Serialize-SimpleExcel and dropped in Excel::Writer::XLSX.
 
