@@ -40,6 +40,16 @@ WriteMakefile(
     PREOP => $preop,
   },
   clean => { FILES => 'Catalyst-Action-Serialize-SimpleXLSX-*' },
+  META_MERGE => {
+    'meta-spec' => { version => 2 },
+    resources => {
+      repository => {
+        type => 'git',
+        url  => 'https://github.com/initself/Catalyst-Action-Serialize-SimpleXLSX.git',
+        web  => 'https://github.com/initself/Catalyst-Action-Serialize-SimpleXLSX',
+      },
+    },
+  },
 );
 
 
