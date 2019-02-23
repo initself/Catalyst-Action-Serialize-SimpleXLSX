@@ -22,7 +22,7 @@ In your REST Controller:
   package MyApp::Controller::REST;
 
   use parent 'Catalyst::Controller::REST';
-  use DBIx::Class::ResultClass::HashRefInflator ();
+  use DBIx::Class::ResultClass::HashRefInflator;
   use POSIX 'strftime';
 
   __PACKAGE__->config->{map}{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'} = 'SimpleXLSX';
@@ -283,6 +283,10 @@ This module is really nothing more than a tweak to L<Catalyst::Action::Serialize
 =head1 SEE ALSO
 
 L<Catalyst>, L<Catalyst::Controller::REST>, L<Catalyst::Action::REST>, L<Catalyst::Action::Serialize::SimpleExcel>, L<Excel::Writer::XLSX>
+
+=head1 REPOSITORY
+
+L<https://github.com/initself/Catalyst-Action-Serialize-SimpleXLSX>
 
 =head1 COPYRIGHT & LICENSE
 
