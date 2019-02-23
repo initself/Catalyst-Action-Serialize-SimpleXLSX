@@ -29,7 +29,7 @@ WriteMakefile(
   TEST_REQUIRES => {
     'Test::More' => 0.88,
     'Test::Deep' => 0,
-    'Spreadsheet::ParseExcel' => 0,
+    'Spreadsheet::XLSX' => 0,
   },
   dist => {
     COMPRESS => 'gzip -9f',

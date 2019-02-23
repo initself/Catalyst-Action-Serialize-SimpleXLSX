@@ -3,7 +3,7 @@
 use Test::More tests => 1;
 
 BEGIN {
-	use_ok( 'Catalyst::Action::Serialize::SimpleExcel2007' );
+	use_ok( 'Catalyst::Action::Serialize::SimpleXLSX' );
 }
 
-diag( "Testing Catalyst::Action::Serialize::SimpleExcel2007 $Catalyst::Action::Serialize::SimpleExcel2007::VERSION, Perl $], $^X" );
+diag( "Testing Catalyst::Action::Serialize::SimpleXLSX $Catalyst::Action::Serialize::SimpleXLSX::VERSION, Perl $], $^X" );

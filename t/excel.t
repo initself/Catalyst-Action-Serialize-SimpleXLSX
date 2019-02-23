@@ -1,7 +1,7 @@
 #!perl
-
 use strict;
 use warnings;
+use Data::Dumper;
 use FindBin '$Bin';
 use lib "$Bin/lib";
 use Catalyst::Test 'TestApp';
@@ -10,16 +10,22 @@ use Spreadsheet::XLSX;
 use Test::More tests => 31;
 use Test::Deep;
 
-# Test array of array
+my $content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-ok((my $file  = get '/rest/a_o_a?content-type=application%2Fvnd.openxmlformats-officedocument.spreadsheetml.sheet'), 'received file');
-ok((my $excel = Spreadsheet::XLSX->new($file)), 'parsed file');
+my $file  = get "/rest/a_o_a?content-type=$content_type";
+ok($file, 'received file');
+
+exit;
+
+my $excel = Spreadsheet::XLSX->new($file);
+ok($excel, 'parsed file');
+exit;
 
 my $sheet = $excel->{Worksheet}[0];
 
+# Test array of array
 cmp_deeply( read_sheet($sheet), [[1,2,3],[4,5,6]], 'array_of_array -> sheet');
 
-exit;
 
 # test that number-like data does not get numified
 

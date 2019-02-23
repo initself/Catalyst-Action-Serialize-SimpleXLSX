@@ -4,7 +4,9 @@ use strict;
 use warnings;
 use parent 'Catalyst::Controller::REST';
 
-__PACKAGE__->config->{map}{'application/vnd.ms-excel'} = 'SimpleExcel';
+my $content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+__PACKAGE__->config->{map}{$content_type} = 'SimpleXLSX';
 
 sub a_o_a : Local ActionClass('REST') {}
 

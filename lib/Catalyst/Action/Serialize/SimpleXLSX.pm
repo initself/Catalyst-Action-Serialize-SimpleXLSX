@@ -224,9 +224,7 @@ sub _parse_entity {
 sub _add_sheet {
   my ( $self, $workbook, $sheet ) = @_;
 
-  my $worksheet =
-    $workbook->add_worksheet( $sheet->{name} ? $sheet->{name} : () );
-
+  my $worksheet = $workbook->add_worksheet( $sheet->{name} ? $sheet->{name} : () );
   $worksheet->keep_leading_zeros(1);
 
   my ( $row, $col ) = ( 0, 0 );
@@ -238,8 +236,7 @@ sub _add_sheet {
     my $header_format = $workbook->add_format;
     $header_format->set_bold;
     for my $header ( @{ $sheet->{header} } ) {
-      $auto_widths[$col] = length $header
-        if $auto_widths[$col] < length $header;
+      $auto_widths[$col] = length $header if $auto_widths[$col] < length $header;
       $worksheet->write( $row, $col++, $header, $header_format );
     }
     $row++;
@@ -249,8 +246,7 @@ sub _add_sheet {
   # Write data
   for my $the_row ( @{ $sheet->{rows} } ) {
     for my $the_col (@$the_row) {
-      $auto_widths[$col] = length $the_col
-        if $auto_widths[$col] < length $the_col;
+      $auto_widths[$col] = length $the_col if $auto_widths[$col] < length $the_col;
       $worksheet->write( $row, $col++, $the_col );
     }
     $row++;
