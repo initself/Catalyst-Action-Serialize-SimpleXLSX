@@ -79,10 +79,12 @@ as.
 
 Your entity should be either:
 
-=over
+=over 4
 
 =item * an array of arrays
+
 =item * an array of arrays of arrays
+
 =item * a hash with the keys as described below and in the L</SYNOPSIS>
 
 =back
