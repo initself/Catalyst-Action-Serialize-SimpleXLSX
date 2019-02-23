@@ -11,7 +11,7 @@ Catalyst::Action::Serialize::SimpleXLSX - Serialize to Microsoft Excel 2007 .xls
 
 =cut
 
-our $VERSION = "0.003";
+our $VERSION = "0.004";
 
 =head1 SYNOPSIS
 
