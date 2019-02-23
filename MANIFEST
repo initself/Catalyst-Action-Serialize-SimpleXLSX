@@ -1,12 +1,9 @@
 Changes
-lib/Catalyst/Action/Serialize/SimpleXLSX.pm
-MYMETA.yml
-MYMETA.json
 Makefile.PL
 MANIFEST
 MANIFEST.SKIP
 README
-README.pod
+lib/Catalyst/Action/Serialize/SimpleXLSX.pm
 t/00-load.t
 t/excel.t
 t/lib/TestApp.pm

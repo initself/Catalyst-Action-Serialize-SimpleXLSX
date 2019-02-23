@@ -288,10 +288,6 @@ L<Catalyst>, L<Catalyst::Controller::REST>, L<Catalyst::Action::REST>, L<Catalys
 
 L<https://github.com/initself/Catalyst-Action-Serialize-SimpleXLSX>
 
-=head1 CONTRIBUTING 
-
-Fork on Github!
-
 =head1 COPYRIGHT & LICENSE
 
 This is free software; you can redistribute it and/or modify it under the same terms as the Perl 5 programming language system itself.
