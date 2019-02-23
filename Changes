@@ -1,5 +1,8 @@
 Revision history for Catalyst-Action-Serialize-SimpleXLSX
 
+0.006  2019-02-22 13:17:22 PDT
+  - Added minimum Perl at 5.10.1 and removed core pre-requisites. 
+
 0.005  2019-02-22 13:17:22 PDT
   - Fixed MANIFEST. 
 

@@ -1,6 +1,6 @@
 package Catalyst::Action::Serialize::SimpleXLSX;
 use Moose;
-use parent 'Catalyst::Action';
+extends 'Catalyst::Action';
 use Excel::Writer::XLSX;
 use Catalyst::Exception;
 use namespace::clean;
@@ -11,7 +11,7 @@ Catalyst::Action::Serialize::SimpleXLSX - Serialize to Microsoft Excel 2007 .xls
 
 =cut
 
-our $VERSION = "0.005";
+our $VERSION = "0.006";
 
 =head1 SYNOPSIS
 
