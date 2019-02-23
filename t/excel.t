@@ -5,25 +5,21 @@ use warnings;
 use FindBin '$Bin';
 use lib "$Bin/lib";
 use Catalyst::Test 'TestApp';
-use Spreadsheet::ParseExcel ();
+use Spreadsheet::XLSX;
 
 use Test::More tests => 31;
 use Test::Deep;
 
 # Test array of array
 
-ok((my $file  = get '/rest/a_o_a?content-type=application%2Fvnd.ms-excel'),
-    'received file');
+ok((my $file  = get '/rest/a_o_a?content-type=application%2Fvnd.openxmlformats-officedocument.spreadsheetml.sheet'), 'received file');
+ok((my $excel = Spreadsheet::XLSX->new($file)), 'parsed file');
 
-ok((my $excel = Spreadsheet::ParseExcel::Workbook->Parse(\$file)),
-    'parsed file');
 my $sheet = $excel->{Worksheet}[0];
 
-cmp_deeply(
-    read_sheet($sheet),
-    [[1,2,3],[4,5,6]],
-    'array_of_array -> sheet'
-);
+cmp_deeply( read_sheet($sheet), [[1,2,3],[4,5,6]], 'array_of_array -> sheet');
+
+exit;
 
 # test that number-like data does not get numified
 

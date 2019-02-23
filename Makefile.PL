@@ -1,28 +1,47 @@
-use inc::Module::Install 0.91;
+#!/usr/bin/env perl
+use warnings;
+use strict;
+use ExtUtils::MakeMaker 6.64;
 
-name     'Catalyst-Action-Serialize-SimpleExcel';
-all_from 'lib/Catalyst/Action/Serialize/SimpleExcel.pm';
-author   'Rafael Kitover <rkitover@cpan.org>';
-license  'perl';
+my $preop =
+  'perldoc -uT $(VERSION_FROM) | tee $(DISTVNAME)/README.pod > README.md;' . 
+  'pod2text README.md | tee $(DISTVNAME)/README > README';
 
-requires 'Catalyst::Controller::REST';
-requires 'Spreadsheet::WriteExcel';
-requires 'parent';
-requires 'namespace::clean';
+WriteMakefile(
+  NAME          => 'Catalyst::Action::Serialize::SimpleXLSX',
+  AUTHOR        => 'Mike Baas <mbaas@cpan.org>',
+  VERSION_FROM  => 'lib/Catalyst/Action/Serialize/SimpleXLSX.pm',
+  ABSTRACT_FROM => 'lib/Catalyst/Action/Serialize/SimpleXLSX.pm',
+  ($ExtUtils::MakeMaker::VERSION >= 6.3002 ? ('LICENSE'=> 'perl') : ()),
+  PL_FILES => {},
+  CONFIGURE_REQUIRES => {
+    'ExtUtils::MakeMaker' => 6.64,
+  },
+  BUILD_REQUIRES => {
+    'Template' => 0,
+  },
+  PREREQ_PM => {
+    'Exporter' => 0,
+    'strict'   => 0,
+    'warnings' => 0,
+    'vars'     => 0,
+    'Catalyst::Controller::REST' => 0,
+    'Catalyst::Exception' => 0,
+    'Excel::Writer::XLSX' => 0,
+    'parent' => 0,
+    'namespace::clean' => 0,
+  },
+  TEST_REQUIRES => {
+    'Test::More' => 0.88,
+    'Test::Deep' => 0,
+    'Spreadsheet::ParseExcel' => 0,
+  },
+  dist => {
+    COMPRESS => 'gzip -9f',
+    SUFFIX => 'gz',
+    PREOP => $preop,
+  },
+  clean => { FILES => 'Catalyst-Action-Serialize-SimpleXLSX-*' },
+);
 
-test_requires 'Test::More';
-test_requires 'Spreadsheet::ParseExcel';
-test_requires 'Test::Deep';
 
-if ($Module::Install::AUTHOR) {
-    system("pod2text lib/Catalyst/Action/Serialize/SimpleExcel.pm > README");
-}
-
-realclean_files 'README';
-
-auto_provides;
-auto_install;
-
-resources repository => 'http://dev.catalyst.perl.org/repos/Catalyst/Catalyst-Action-Serialize-SimpleExcel/1.000/trunk/';
-
-WriteAll;
