@@ -3,9 +3,7 @@ use warnings;
 use strict;
 use ExtUtils::MakeMaker 6.64;
 
-my $preop =
-  'perldoc -uT $(VERSION_FROM) | tee README.pod;' . 
-  'pod2text README.pod | tee README';
+my $preop = 'perldoc -uT $(VERSION_FROM) | tee README.pod';
 
 WriteMakefile(
   NAME          => 'Catalyst::Action::Serialize::SimpleXLSX',

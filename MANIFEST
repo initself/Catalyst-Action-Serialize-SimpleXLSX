@@ -1,5 +1,5 @@
 Changes
-lib/Catalyst/Action/Serialize/SimpleExcel2007.pm
+lib/Catalyst/Action/Serialize/SimpleXLSX.pm
 MYMETA.yml
 MYMETA.json
 Makefile.PL
@@ -7,7 +7,6 @@ MANIFEST
 MANIFEST.SKIP
 README
 README.pod
-INSTALL
 t/00-load.t
 t/excel.t
 t/lib/TestApp.pm
