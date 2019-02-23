@@ -1,5 +1,8 @@
 Revision history for Catalyst-Action-Serialize-SimpleXLSX
 
+0.005  2019-02-22 13:17:22 PDT
+  - Fixed MANIFEST. 
+
 0.004  2019-02-22 13:17:21 PDT
   - Fixed build. 
 

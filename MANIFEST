@@ -3,6 +3,7 @@ Makefile.PL
 MANIFEST
 MANIFEST.SKIP
 README
+CONTRIBUTING
 lib/Catalyst/Action/Serialize/SimpleXLSX.pm
 t/00-load.t
 t/excel.t
