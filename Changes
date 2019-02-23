@@ -1,5 +1,8 @@
 Revision history for Catalyst-Action-Serialize-SimpleXLSX
 
+0.007  2019-02-22 20:17:23 PDT
+  - Fixed unit tests.  Need to re-emplement column width logic and re-test.
+
 0.006  2019-02-22 13:17:23 PDT
   - Added minimum Perl at 5.10.1 and removed core pre-requisites. 
 

@@ -1,6 +1,7 @@
 package Catalyst::Action::Serialize::SimpleXLSX;
 use Moose;
 extends 'Catalyst::Action';
+use Data::Dumper;
 use Excel::Writer::XLSX;
 use Catalyst::Exception;
 use namespace::clean;
@@ -11,7 +12,7 @@ Catalyst::Action::Serialize::SimpleXLSX - Serialize to Microsoft Excel 2007 .xls
 
 =cut
 
-our $VERSION = "0.006";
+our $VERSION = "0.007";
 
 =head1 SYNOPSIS
 
@@ -236,7 +237,9 @@ sub _add_sheet {
     my $header_format = $workbook->add_format;
     $header_format->set_bold;
     for my $header ( @{ $sheet->{header} } ) {
-      $auto_widths[$col] = length $header if $auto_widths[$col] < length $header;
+      if (defined $auto_widths[$col] && $auto_widths[$col] < length $header) {
+        $auto_widths[$col] = length $header;
+      }
       $worksheet->write( $row, $col++, $header, $header_format );
     }
     $row++;
@@ -246,7 +249,9 @@ sub _add_sheet {
   # Write data
   for my $the_row ( @{ $sheet->{rows} } ) {
     for my $the_col (@$the_row) {
-      $auto_widths[$col] = length $the_col if $auto_widths[$col] < length $the_col;
+      if (defined $auto_widths[$col] && $auto_widths[$col] < length $the_col) {
+        $auto_widths[$col] = length $the_col;
+      }
       $worksheet->write( $row, $col++, $the_col );
     }
     $row++;
